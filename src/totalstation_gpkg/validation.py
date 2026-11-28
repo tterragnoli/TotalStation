@@ -5,7 +5,11 @@ from dataclasses import dataclass
 from statistics import median
 
 from totalstation_gpkg.csv_reader import PointRecord
-from totalstation_gpkg.config import MAD_THRESHOLD, MIN_GROUP_SIZE
+from totalstation_gpkg.config import (
+    HEIGHT_TOLERANCE,
+    MAD_THRESHOLD,
+    MIN_GROUP_SIZE,
+)
 
 MAD_NORMALIZATION = 0.6744897501960817
 
@@ -79,6 +83,8 @@ def validate_points(records: list[PointRecord]) -> ValidationReport:
         group_median = median(heights)
         mad = median([abs(height - group_median) for height in heights])
         for record in group:
+            if abs(record.z - group_median) <= HEIGHT_TOLERANCE:
+                continue
             if mad == 0:
                 if record.z == group_median:
                     continue

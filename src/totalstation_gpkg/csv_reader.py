@@ -47,57 +47,67 @@ def _parse_number(value: str | None) -> tuple[float | None, bool]:
 def read_points(csv_path: str | Path) -> list[PointRecord]:
     """Read the CSV and retain numeric errors for the validation report."""
     records: list[PointRecord] = []
-    with Path(csv_path).open("r", encoding="utf-8-sig", newline="") as csv_file:
-        reader = csv.DictReader(csv_file)
-        fieldnames = reader.fieldnames
-        if fieldnames is None:
-            raise CSVFormatError("The CSV is empty or has no header.")
-        if len(fieldnames) != len(set(fieldnames)):
-            raise CSVFormatError("The header contains duplicate column names.")
-
-        normalized_names = {name.strip(): name for name in fieldnames}
-        missing_columns = [
-            column for column in REQUIRED_COLUMNS if column not in normalized_names
-        ]
-        if missing_columns:
-            raise CSVFormatError(
-                "Missing required columns in header: " + ", ".join(missing_columns)
-            )
-
-        for row in reader:
-            line_number = reader.line_num
-            if None in row:
+    try:
+        with Path(csv_path).open("r", encoding="utf-8-sig", newline="") as csv_file:
+            reader = csv.DictReader(csv_file)
+            fieldnames = reader.fieldnames
+            if fieldnames is None:
+                raise CSVFormatError("The CSV is empty or has no header.")
+            if len(fieldnames) == 1 and ";" in fieldnames[0]:
                 raise CSVFormatError(
-                    f"CSV row {line_number} contains more fields than the header."
+                    "The file header looks semicolon-separated. The file must use "
+                    "commas as delimiters and periods as decimal separators."
+                )
+            if len(fieldnames) != len(set(fieldnames)):
+                raise CSVFormatError("The header contains duplicate column names.")
+
+            normalized_names = {name.strip(): name for name in fieldnames}
+            missing_columns = [
+                column for column in REQUIRED_COLUMNS if column not in normalized_names
+            ]
+            if missing_columns:
+                raise CSVFormatError(
+                    "Missing required columns in header: " + ", ".join(missing_columns)
                 )
 
-            values = {
-                column: row.get(normalized_names[column])
-                for column in REQUIRED_COLUMNS
-            }
-            missing_fields = tuple(
-                column
-                for column in REQUIRED_COLUMNS
-                if _clean_text(values[column]) is None
-            )
-            parsed_numbers: dict[str, float | None] = {}
-            invalid_numeric_fields: list[str] = []
-            for column in NUMERIC_COLUMNS:
-                number, invalid = _parse_number(values[column])
-                parsed_numbers[column] = number
-                if invalid:
-                    invalid_numeric_fields.append(column)
+            for row in reader:
+                line_number = reader.line_num
+                if None in row:
+                    raise CSVFormatError(
+                        f"CSV row {line_number} contains more fields than the header."
+                    )
 
-            records.append(
-                PointRecord(
-                    line_number=line_number,
-                    point_id=_clean_text(values["id"]),
-                    x=parsed_numbers["x"],
-                    y=parsed_numbers["y"],
-                    z=parsed_numbers["z"],
-                    code=_clean_text(values["codice"]),
-                    missing_fields=missing_fields,
-                    invalid_numeric_fields=tuple(invalid_numeric_fields),
+                values = {
+                    column: row.get(normalized_names[column])
+                    for column in REQUIRED_COLUMNS
+                }
+                missing_fields = tuple(
+                    column
+                    for column in REQUIRED_COLUMNS
+                    if _clean_text(values[column]) is None
                 )
-            )
+                parsed_numbers: dict[str, float | None] = {}
+                invalid_numeric_fields: list[str] = []
+                for column in NUMERIC_COLUMNS:
+                    number, invalid = _parse_number(values[column])
+                    parsed_numbers[column] = number
+                    if invalid:
+                        invalid_numeric_fields.append(column)
+
+                records.append(
+                    PointRecord(
+                        line_number=line_number,
+                        point_id=_clean_text(values["id"]),
+                        x=parsed_numbers["x"],
+                        y=parsed_numbers["y"],
+                        z=parsed_numbers["z"],
+                        code=_clean_text(values["codice"]),
+                        missing_fields=missing_fields,
+                        invalid_numeric_fields=tuple(invalid_numeric_fields),
+                    )
+                )
+    except UnicodeDecodeError as exc:
+        raise CSVFormatError(
+            'The file is not valid UTF-8. Save it as "CSV UTF-8" and try again.'
+        ) from exc
     return records

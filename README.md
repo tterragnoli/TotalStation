@@ -41,7 +41,8 @@ python -m totalstation_gpkg.cli examples\points.csv points.gpkg --crs EPSG:32632
 The required CSV columns are `id`, `x`, `y`, `z`, and `codice`. The input
 header must retain `codice` because it is part of the specified source format.
 The CSV must be UTF-8 with a header row and comma delimiters. X, Y, and Z must
-use a period as the decimal separator.
+use a period as the decimal separator. When saving in spreadsheet software,
+choose the "CSV UTF-8" format.
 
 To process another file, replace the input and output paths and provide the
 CRS that matches your survey data:
@@ -58,7 +59,8 @@ missing and are not treated as duplicates. Elevations are evaluated separately
 for each code using valid numeric values: an elevation is anomalous when its
 modified MAD score exceeds 3.5 in absolute value; groups with fewer than five
 valid elevations are not evaluated. If a group's MAD is zero, every elevation
-that differs from the median is reported. Records with valid X and Y are
+that differs from the median is reported. Elevations within 0.02 units of the
+group median are always ignored, including in zero-MAD groups. Records with valid X and Y are
 exported; records without them remain in the report but are excluded from the
 GeoPackage. Exported attributes retain the source column names, including
 `codice`; a missing or invalid Z is stored as an empty attribute.
@@ -73,7 +75,8 @@ python -m pytest
 
 The CSV columns and GeoPackage export settings are defined in
 `src/totalstation_gpkg/config.py`. Changing a column name also requires changing
-the code that uses that column.
+the code that uses that column. `HEIGHT_TOLERANCE` is the elevation tolerance
+in the same units as Z.
 
 ## AI usage
 

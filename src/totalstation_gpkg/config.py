@@ -14,3 +14,6 @@ MIN_GROUP_SIZE = 5
 
 # GeoPackage layer name used for exported points.
 LAYER_NAME = "points"
+
+# Elevations within this many units of the group median are not anomalous.
+HEIGHT_TOLERANCE = 0.02
