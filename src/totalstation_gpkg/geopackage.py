@@ -7,6 +7,7 @@ from pyproj import CRS
 from shapely.geometry import Point
 
 from totalstation_gpkg.csv_reader import PointRecord
+from totalstation_gpkg.config import LAYER_NAME
 
 
 def export_geopackage(
@@ -33,7 +34,7 @@ def export_geopackage(
     )
     frame.to_file(
         Path(output_path),
-        layer="points",
+        layer=LAYER_NAME,
         driver="GPKG",
         index=False,
     )

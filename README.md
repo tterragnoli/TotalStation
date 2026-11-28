@@ -69,6 +69,12 @@ GeoPackage. Exported attributes retain the source column names, including
 python -m pytest
 ```
 
+## Configuration
+
+The CSV columns and GeoPackage export settings are defined in
+`src/totalstation_gpkg/config.py`. Changing a column name also requires changing
+the code that uses that column.
+
 ## AI usage
 
 The code was developed with GitHub Copilot in Visual Studio Code.

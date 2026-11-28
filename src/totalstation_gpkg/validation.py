@@ -5,9 +5,8 @@ from dataclasses import dataclass
 from statistics import median
 
 from totalstation_gpkg.csv_reader import PointRecord
+from totalstation_gpkg.config import MAD_THRESHOLD, MIN_GROUP_SIZE
 
-MAD_THRESHOLD = 3.5
-MIN_GROUP_SIZE = 5
 MAD_NORMALIZATION = 0.6744897501960817
 
 

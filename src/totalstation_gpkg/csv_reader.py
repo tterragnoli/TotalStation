@@ -5,8 +5,7 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-REQUIRED_COLUMNS = ("id", "x", "y", "z", "codice")
-NUMERIC_COLUMNS = ("x", "y", "z")
+from totalstation_gpkg.config import NUMERIC_COLUMNS, REQUIRED_COLUMNS
 
 
 class CSVFormatError(ValueError):
