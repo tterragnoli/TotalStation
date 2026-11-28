@@ -1,4 +1,4 @@
-# Total Station GeoPackage
+# Total Station CSV Validation and GeoPackage Export
 
 Read a total station points CSV, report duplicate IDs, missing values, invalid
 numeric values, and anomalous elevations per code, then export records with
@@ -68,3 +68,13 @@ GeoPackage. Exported attributes retain the source column names, including
 ```powershell
 python -m pytest
 ```
+
+## AI usage
+
+The code was developed with GitHub Copilot in Visual Studio Code.
+Claude (Anthropic) provided guidance and code review. This is an
+experimental project, tried only on sample data.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
